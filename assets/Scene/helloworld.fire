@@ -232,7 +232,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "New Label",
+    "_name": "score",
     "_objFlags": 0,
     "_parent": {
       "__id__": 4
@@ -263,7 +263,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 67,
+      "width": 22,
       "height": 40
     },
     "_rotationX": 0,
@@ -298,7 +298,7 @@
     "_N$file": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
-    "_N$string": "999",
+    "_N$string": "0",
     "_N$horizontalAlign": 1,
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
@@ -17168,6 +17168,7 @@
     "_enabled": true,
     "col": 14,
     "row": 14,
+    "speed": 800,
     "tile_bg1": {
       "__uuid__": "daef48c7-03fa-4e6e-8877-88e93e66b14b"
     },

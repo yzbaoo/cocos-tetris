@@ -183,16 +183,26 @@ cc.Class({
             if(clear){
                 this.data.splice(i1,1);
                 this.data.splice(0,0,[0,0,0,0,0,0,0,0,0,0,0,0,0,0]);
-                // todo: 加分
+                // 加分
+                this.addScore();
             }
         }
     },
 
     /**
-     * 检查游戏是否结束
+     * 加分
      */
-    failCheck() {
+    addScore() {
+        const $build = cc.find('/content/score', this.node);
+        let preScore = $build.getComponent(cc.Label).string;
+        $build.getComponent(cc.Label).string = preScore - 0 + 1 + '';
+    },
 
+    /**
+     * 游戏结束
+     */
+    playFail() {
+        console.error('游戏结束');
     },
 
     /**
@@ -201,15 +211,19 @@ cc.Class({
     onClickDown() {
         const bottom_y = ++this.currIndex[0] + this.tiles.length;
         if(bottom_y > this.row) {
+            console.error('碰到棋盘底部了:',this.currIndex);
             this.bottomOut();
-            console.error('碰到棋盘底部了');
         }else {
             this.moveTiles(this.currIndex,this.tiles, 1)
             .catch(()=>{
                 // 触下
                 this.currIndex[0]--;
+                console.error('碰到其他元件了:',this.currIndex);
+                if(this.currIndex[0] === 0){ // 刚开始就碰到其他元件，说明游戏结束
+                    this.playFail();
+                    return;
+                }
                 this.bottomOut();
-                console.error('碰到其他元件了');
             });
         }
     },
