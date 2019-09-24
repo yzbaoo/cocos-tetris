@@ -7,6 +7,7 @@ const tiles = {
     '4':[[1,1,1],[0,0,1]],
     '5':[[1,1],[0,1],[0,1]],
     '6':[[0,1,0],[1,1,1]],
+    '7':[[1,1,1],[1,0,0]],
 };
 cc.Class({
     extends: cc.Component,
@@ -14,6 +15,7 @@ cc.Class({
     properties: {
         col:14,
         row:14, 
+        speed: 800,// 下降速度：800ms
 
         tile_bg1: cc.SpriteFrame,
         tile_bg2: cc.SpriteFrame,
@@ -78,11 +80,11 @@ cc.Class({
     moveTiles(start, tiles, id){
         return new Promise((res,rej) => {
             const positions = this.getPositions(start,tiles);
-            this.willTouchBottom = false;
             const { data,isExist } = this.merge(this.data,positions,id);
             if(isExist){
                 rej();
             }else {
+                this.copy_data = data; // 在触底的时候 将this.copy_data赋值给this.data
                 this.tiles = tiles; // 成功渲染之后，在赋值给 this.tiles
                 this.updateMap(data);
                 res(data);
@@ -127,12 +129,6 @@ cc.Class({
             }else {
                 data[tile[0]][tile[1]] = id;
             }
-            if (
-                tile[0] + 1 < this.row &&
-                this.data[tile[0] + 1][tile[1]] !== 0
-            ) {
-                this.willTouchBottom = 'bottom';
-            }
         }
         return { data, isExist };
     },
@@ -164,11 +160,9 @@ cc.Class({
      * 触底
      */
     bottomOut() {
-        this.willTouchBottom = false;
         this.currIndex = null;
         this.data = this.copy_data;
         this.bottomCheck();
-        console.error('生成一个新的');
         const random = Math.floor(Math.random()*(6+1));
         this.tiles = tiles[random];
     },
@@ -195,24 +189,27 @@ cc.Class({
     },
 
     /**
+     * 检查游戏是否结束
+     */
+    failCheck() {
+
+    },
+
+    /**
      * 点击【下】
      */
     onClickDown() {
-        if(this.willTouchBottom){
-            this.bottomOut();
-            return;
-        }
-
         const bottom_y = ++this.currIndex[0] + this.tiles.length;
         if(bottom_y > this.row) {
             this.bottomOut();
+            console.error('碰到棋盘底部了');
         }else {
             this.moveTiles(this.currIndex,this.tiles, 1)
-            .then((data) => {
-                this.copy_data = data; // 只有触底的时候 this.data = this.copy_data
-            })
             .catch(()=>{
+                // 触下
                 this.currIndex[0]--;
+                this.bottomOut();
+                console.error('碰到其他元件了');
             });
         }
     },
@@ -246,7 +243,6 @@ cc.Class({
             this.moveTiles(this.currIndex,this.tiles, 1)
             .catch(()=>{
                 // 触右
-                console.error(this.currIndex);
                 this.currIndex[1]--;
             });;
         }
@@ -350,7 +346,6 @@ cc.Class({
         const $controlRight = cc.find('/btnGroup-2/control-right',this.node);
 
         $controlUp.on('click',()=>{
-            console.error('上');
             this.onClickUp();
         });
 
@@ -368,11 +363,13 @@ cc.Class({
     },
 
     start: function () {
-        console.error('=====start=====',this.currIndex,this.tiles,this.data);
         this.moveTiles(this.currIndex,this.tiles, 1);
+        // setInterval(()=>{
+        //     this.onClickDown();
+        // },this.speed);
     },
 
-    update: function (dt) {
+    // update: function (dt) {
 
-    },
+    // },
 });
